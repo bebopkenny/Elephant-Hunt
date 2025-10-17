@@ -8,6 +8,19 @@ import time
 import html
 from html import escape
 from riddles import RIDDLES
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as _TO
+
+def _run_with_timeout(fn, timeout_secs: float, *args, **kwargs):
+    """Run fn(*args, **kwargs) with a hard wall-clock timeout."""
+    with ThreadPoolExecutor(max_workers=1) as ex:
+        fut = ex.submit(fn, *args, **kwargs)
+        try:
+            return True, fut.result(timeout=timeout_secs)
+        except _TO:
+            return False, "I’m still thinking—try a shorter clue or ask for one stronger hint."
+        except Exception as e:
+            return False, f"I hit a snag: {e}"
+
 
 # 1. Page config
 st.set_page_config(page_title="Tuffy Hunt", layout="wide")
@@ -194,36 +207,66 @@ st.markdown(
 
 # Game helpers 
 
-def get_team_by_slug(slug: str) -> Optional[dict]:
-    res = supabase.table("teams")\
-        .select("id, name, slug, game_id, won_at")\
-        .eq("slug", slug).single().execute()
-    return res.data
+def get_team_by_slug(slug: str):
+    try:
+        res = (
+            supabase.table("teams")
+            .select("*")
+            .eq("slug", (slug or "").strip().lower())
+            .limit(1)
+            .execute()
+        )
+        rows = res.data or []
+        return rows[0] if rows else None
+    except Exception as e:
+        print("get_team_by_slug error:", e)
+        return None
 
+def get_path(team_id: str):
+    try:
+        res = (
+            supabase.table("paths")
+            .select("station_order, current_index")
+            .eq("team_id", team_id)
+            .limit(1)
+            .execute()
+        )
+        rows = res.data or []
+        return rows[0] if rows else None
+    except Exception as e:
+        print("get_path error:", e)
+        return None
 
-def get_path(team_id: str) -> Optional[dict]:
-    res = supabase.table("paths").select("station_order, current_index").eq("team_id", team_id).single().execute()
-    return res.data
+def get_station(station_id: str):
+    try:
+        res = (
+            supabase.table("stations")
+            .select("id, name")
+            .eq("id", station_id)
+            .limit(1)
+            .execute()
+        )
+        rows = res.data or []
+        return rows[0] if rows else None
+    except Exception as e:
+        print("get_station error:", e)
+        return None
 
-def get_station(station_id: str) -> Optional[dict]:
-    res = supabase.table("stations").select("id, name").eq("id", station_id).single().execute()
-    return res.data
-
-def get_next_station(team_slug: str) -> Tuple[Optional[dict], Optional[dict], Optional[int]]:
-    """
-    Returns (team, next_station, idx). If finished, next_station is None.
-    """
+def get_next_station(team_slug: str):
     team = get_team_by_slug(team_slug)
     if not team:
+        # No such team; return a sentinel and let the caller show a friendly message
         return None, None, None
+
     path = get_path(team["id"])
-    if not path:
+    if not path or not path.get("station_order"):
         return team, None, None
-    order, idx = path["station_order"], path["current_index"]
+
+    order, idx = path["station_order"], path.get("current_index", 0)
     if idx is None or idx >= len(order):
-        return team, None, idx
-    stn = get_station(order[idx])
-    return team, stn, idx
+        return team, None, idx  # finished
+    return team, order[idx], idx
+
 
 if "team_slug" not in st.session_state:
     st.session_state["team_slug"] = "red-1234"  # default startup team
@@ -293,7 +336,7 @@ def handle_scan_from_query():
         return
     
     # sync UI to the team from the link
-    st.session_state["team_slug"] = team
+    st.session_state["team_slug"] = (team or "").strip().lower()
 
     ok, msg = advance_if_expected(team, station)
     if ok:
@@ -344,11 +387,12 @@ col1, col2 = st.columns([2, 1])
 
 # bind the input to session state so scan links can set it
 st.text_input("Team slug", key="team_slug")
-team_slug_str = st.session_state["team_slug"].strip()
+team_slug_str = st.session_state["team_slug"].strip().lower()
 
 # guard against no team slug before rendering the chat
 if not team_slug_str:
     st.info("Enter a team slug to start your hunt.")
+    st.stop()
 
 
 # Reset chat + hint state if the team changes
@@ -443,10 +487,25 @@ aliases = []
 
 if team_slug_str:
     _team, _next_station, _idx = get_next_station(team_slug_str)
+
+    if _team is None:
+        st.warning(f"Team '{team_slug_str}' was not found. Check the slug or create the team.")
+        st.stop()  # prevent the rest of the page from running
+
     if _next_station:
-        station_id = _next_station["id"]
-        station_name = _next_station.get("name", "Unknown")
+        # There is a next station show its details
+        station_id = _next_station  # UUID from the path
+        s = get_station(station_id)  # fetch name/id from DB
+        station_name = (s or {}).get("name", "Unknown")
         seed_riddle, aliases = get_seed_and_aliases(station_id)
+
+    elif _idx is not None:
+        # Team exists but no next station finished route
+        st.success("🎉 You’ve finished the hunt! Great job.")
+
+    else:
+        # Team exists but path not set or empty
+        st.info("This team doesn't have a path yet. Set one in the admin tools.")
 
 # Reset hint counter if station changed
 if station_id is not None:
@@ -614,7 +673,9 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
     aliases = params.get("aliases", [])
     give_hint = params["give_hint"]
 
-    reply = guardian_reply(
+    # ⬇️ NEW: hard 9s wall-clock timeout at the UI layer
+    _ok, reply = _run_with_timeout(
+        guardian_reply, 9.0,
         station_name=station_name,
         user_msg=user_text,
         seed_riddle=seed_riddle,
@@ -624,17 +685,19 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
 
     typing_placeholder = thinking_placeholder
     displayed = ""
-    for c in reply:
-        displayed += c
+    # (Optional) smoother/ quicker typing animation
+    for i in range(0, len(reply), 4):  # print 4 chars at a time
+        displayed = reply[: i + 4]
         typing_html = f'<div class="chat-row"><div class="chat-bubble chat-assistant">{escape(displayed)}</div></div>'
         typing_placeholder.markdown(typing_html, unsafe_allow_html=True)
-        time.sleep(0.012)
+        time.sleep(0.006)
 
     typing_placeholder.empty()
     st.session_state.chat_history.append(("assistant", reply))
     st.session_state.guardian_busy = False
     st.session_state._awaiting_guardian = None
     st.rerun()
+
 
 
 with col2:

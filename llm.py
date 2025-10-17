@@ -20,7 +20,7 @@ DEFAULT_DAILY_REQUESTS = int(st.secrets.get("DAILY_REQUEST_LIMIT", 300))
 DEFAULT_DAILY_COMPLETION_TOKENS = int(st.secrets.get("DAILY_COMPLETION_TOKEN_LIMIT", 60000))
 
 # hard cap on LLM latency
-LLM_TIMEOUT_SECS = 8
+LLM_TIMEOUT_SECS = 0.001
 
 def _call_llm(messages):
     # Single place to call your model with consistent params
@@ -132,29 +132,24 @@ Behavior rules:
 Output format: plain text only, no code blocks or markdown headers.
 """
 
-def _enforce_secrecy(text: str, station_name: str) -> str:
-    """
-    Last-resort guardrail: if the model accidentally says the exact station_name,
-    redact it. (Simple case-insensitive substring check.)
-    """
-    if not text or not station_name:
-        return text or ""
-    lower = text.lower()
-    needle = station_name.strip().lower()
-    if needle and needle in lower:
-        return lower.replace(needle, "[redacted]")
-    return text
+# def _enforce_secrecy(text: str, station_name: str) -> str:
+#     """
+#     Last-resort guardrail: if the model accidentally says the exact station_name,
+#     redact it. (Simple case-insensitive substring check.)
+#     """
+#     if not text or not station_name:
+#         return text or ""
+#     lower = text.lower()
+#     needle = station_name.strip().lower()
+#     if needle and needle in lower:
+#         return lower.replace(needle, "[redacted]")
+#     return text
 
 # simple utility call
 def ask_grok(prompt: str) -> str:
     try:
         _check_budget_or_raise()
-        resp = client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS_PER_REPLY,
-        )
+        resp = _safe_llm([{"role": "user", "content": prompt}])
         _charge_after(resp)
         return (resp.choices[0].message.content or "").strip()
     except Exception as e:
@@ -183,15 +178,11 @@ def guardian_reply(
 
     try:
         _check_budget_or_raise()
-        resp = client.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": payload},
-            ],
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS_PER_REPLY,
-        )
+        resp = _safe_llm([
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": payload},
+        ])
+
         _charge_after(resp)
 
         text = (resp.choices[0].message.content or "").strip()
