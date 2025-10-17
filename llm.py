@@ -4,6 +4,7 @@ from datetime import date
 import re 
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
+import time, os, json, requests
 
 # client and model
 client = OpenAI(
@@ -20,26 +21,61 @@ DEFAULT_DAILY_REQUESTS = int(st.secrets.get("DAILY_REQUEST_LIMIT", 300))
 DEFAULT_DAILY_COMPLETION_TOKENS = int(st.secrets.get("DAILY_COMPLETION_TOKEN_LIMIT", 60000))
 
 # hard cap on LLM latency
-LLM_TIMEOUT_SECS = 0.001
+LLM_TIMEOUT_SECS = 8.0
 
 def _call_llm(messages):
-    # Single place to call your model with consistent params
-    return client.chat.completions.create(
-        model=MODEL,
-        messages=messages,
-        temperature=TEMPERATURE,
-        max_tokens=MAX_TOKENS_PER_REPLY,
+    """
+    Direct POST to Grok's OpenAI-compatible /chat/completions endpoint using 'requests'.
+    This bypasses the SDK path that was timing out on your machine.
+    """
+    BASE = os.environ.get("GROK_API_URL") or st.secrets["GROK_API_URL"]
+    KEY  = os.environ.get("GROK_API_KEY")  or st.secrets["GROK_API_KEY"]
+    model = MODEL  # already set from st.secrets earlier
+
+    url = BASE.rstrip("/") + "/chat/completions"
+    payload = {
+        "model": model,
+        "messages": messages,                         # [{"role": "...", "content": "..."}]
+        "temperature": TEMPERATURE,                   # already float
+        "max_tokens": MAX_TOKENS_PER_REPLY,          # already int
+        "stream": False
+    }
+
+    t0 = time.time()
+    r = requests.post(
+        url,
+        headers={
+            "Authorization": f"Bearer {KEY}",
+            "Content-Type": "application/json",
+        },
+        data=json.dumps(payload),
+        timeout=(3.0, LLM_TIMEOUT_SECS - 0.5)        # (connect timeout, read timeout)
     )
+    r.raise_for_status()
+    data = r.json()
+
+    # Mimic the OpenAI client response shape your code expects downstream
+    class _Resp:
+        class _Choice:
+            class _Msg:
+                content = data["choices"][0]["message"]["content"]
+            message = _Msg()
+        choices = [_Choice()]
+        usage = data.get("usage")
+
+    print(f"[LLM DEBUG] requests.post OK in {time.time()-t0:.2f}s")
+    return _Resp()
+
 
 def _safe_llm(messages):
-    # Run the LLM with a hard timeout and graceful fallbacks
     with ThreadPoolExecutor(max_workers=1) as ex:
         fut = ex.submit(_call_llm, messages)
         try:
             return fut.result(timeout=LLM_TIMEOUT_SECS)
         except TimeoutError:
-            # Friendly nudge when the model is slow
-            class _Fallback:  # tiny shim to look like OpenAI response
+            print(f"[LLM DEBUG] fut.result() hit TimeoutError at ~{LLM_TIMEOUT_SECS:.1f}s")
+            # … (keep your fallback as-is)
+            class _Fallback:
                 class _Choice:
                     class _Msg:
                         content = "I’m still thinking—try a shorter clue or ask for one stronger hint."
@@ -47,7 +83,9 @@ def _safe_llm(messages):
                 choices = [_Choice()]
                 usage = None
             return _Fallback()
-        except Exception:
+        except Exception as e:
+            print("[LLM ERROR]", repr(e))
+            # … (keep your other fallback)
             class _Fallback:
                 class _Choice:
                     class _Msg:

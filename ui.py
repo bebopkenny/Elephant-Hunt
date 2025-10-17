@@ -3,7 +3,7 @@ import base64
 from db import supabase
 from typing import Optional, Tuple
 import random
-from llm import guardian_reply
+from llm import guardian_reply, client, MODEL, TEMPERATURE, MAX_TOKENS_PER_REPLY
 import time
 import html
 from html import escape
@@ -660,7 +660,7 @@ if hasattr(st.session_state, "_show_thinking") and st.session_state._show_thinki
     # Set up for next rerun to generate reply
     st.session_state._awaiting_guardian = st.session_state._show_thinking
     st.session_state._show_thinking = None
-    st.stop()
+    st.rerun()
 
 # Step 2: Handle the actual LLM reply and typing animation after rerun
 if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaiting_guardian:
@@ -675,7 +675,7 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
 
     # ⬇️ NEW: hard 9s wall-clock timeout at the UI layer
     _ok, reply = _run_with_timeout(
-        guardian_reply, 9.0,
+        guardian_reply, 8.2,
         station_name=station_name,
         user_msg=user_text,
         seed_riddle=seed_riddle,
@@ -698,7 +698,21 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
     st.session_state._awaiting_guardian = None
     st.rerun()
 
-
+if st.button("LLM direct test (no thread)"):
+    try:
+        t0 = time.time()
+        st.write("Calling LLM…")
+        resp = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": "Say 'pong' in one word."}],
+            temperature=TEMPERATURE,
+            max_tokens=MAX_TOKENS_PER_REPLY,
+            timeout=3.0,  # hard 3s
+        )
+        dt = time.time()-t0
+        st.write(f"OK in {dt:.2f}s:", resp.choices[0].message.content)
+    except Exception as e:
+        st.write(f"[direct error] {repr(e)}")
 
 with col2:
     st.subheader("🏆 Leaderboard")
