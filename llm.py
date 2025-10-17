@@ -3,6 +3,7 @@ from openai import OpenAI
 from datetime import date
 import re 
 from typing import List, Optional
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 
 # client and model
 client = OpenAI(
@@ -12,11 +13,51 @@ client = OpenAI(
 MODEL = st.secrets.get("GROK_MODEL", "grok-4")
 
 # tuning and simple budget caps
-MAX_TOKENS_PER_REPLY = int(st.secrets.get("MAX_TOKENS_PER_REPLY", 160))
-TEMPERATURE = float(st.secrets.get("TEMPERATURE", 0.3))
+MAX_TOKENS_PER_REPLY = int(st.secrets.get("MAX_TOKENS_PER_REPLY", 90))
+TEMPERATURE = float(st.secrets.get("TEMPERATURE", 0.2))
 
 DEFAULT_DAILY_REQUESTS = int(st.secrets.get("DAILY_REQUEST_LIMIT", 300))
 DEFAULT_DAILY_COMPLETION_TOKENS = int(st.secrets.get("DAILY_COMPLETION_TOKEN_LIMIT", 60000))
+
+# hard cap on LLM latency
+LLM_TIMEOUT_SECS = 8
+
+def _call_llm(messages):
+    # Single place to call your model with consistent params
+    return client.chat.completions.create(
+        model=MODEL,
+        messages=messages,
+        temperature=TEMPERATURE,
+        max_tokens=MAX_TOKENS_PER_REPLY,
+    )
+
+def _safe_llm(messages):
+    # Run the LLM with a hard timeout and graceful fallbacks
+    with ThreadPoolExecutor(max_workers=1) as ex:
+        fut = ex.submit(_call_llm, messages)
+        try:
+            return fut.result(timeout=LLM_TIMEOUT_SECS)
+        except TimeoutError:
+            # Friendly nudge when the model is slow
+            class _Fallback:  # tiny shim to look like OpenAI response
+                class _Choice:
+                    class _Msg:
+                        content = "I’m still thinking—try a shorter clue or ask for one stronger hint."
+                    message = _Msg()
+                choices = [_Choice()]
+                usage = None
+            return _Fallback()
+        except Exception:
+            class _Fallback:
+                class _Choice:
+                    class _Msg:
+                        content = "I hit a snag. Try again or ask for a simpler hint."
+                    message = _Msg()
+                choices = [_Choice()]
+                usage = None
+            return _Fallback()
+
+
 
 def _truncate_to_sentences(text: str, max_sentences: int = 3) -> str:
     if not text:

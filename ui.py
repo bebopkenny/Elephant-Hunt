@@ -225,60 +225,27 @@ def get_next_station(team_slug: str) -> Tuple[Optional[dict], Optional[dict], Op
     stn = get_station(order[idx])
     return team, stn, idx
 
+if "team_slug" not in st.session_state:
+    st.session_state["team_slug"] = "red-1234"  # default startup team
+
 def advance_if_expected(team_slug: str, scanned_station_id: str) -> Tuple[bool, str]:
     """
-    Advance path.current_index by 1 only if scanned_station_id == expected.
+    Calls the DB RPC to validate order, advance, award points, and (if finished) set won_at.
     Returns (ok, message).
     """
-    team = get_team_by_slug(team_slug)
-    if not team:
-        return False, "Team not found."
-    path = get_path(team["id"])
-    if not path:
-        return False, "Path not found."
-
-    order, idx = path["station_order"], path["current_index"]
-    if idx is None or idx >= len(order):
-        return False, "Already finished!"
-
-    expected_id = order[idx]
-    if scanned_station_id != expected_id:
-        return False, "Not your elephant."
-
-    # 1. advance pointer
-    new_idx = idx + 1
-    supabase.table("paths").update({"current_index": new_idx}).eq(
-        "team_id", team["id"]
-    ).execute()
-
-    # 2. award points for the station
     try:
-        supabase.table("score_events").insert({
-            "team_id": team["id"],
-            "station_id": expected_id,
-            "points": 10
+        res = supabase.rpc("process_scan", {
+            "p_team_slug": team_slug,
+            "p_station_id": scanned_station_id
         }).execute()
+        row = (res.data or [None])[0]
+        if not row:
+            return False, "Scan failed."
+        ok = bool(row.get("ok"))
+        msg = row.get("message") or ("Nice find! (+10)" if ok else "Not your elephant.")
+        return ok, msg
     except Exception as e:
-        # duplicate means they already got these points
-        print("Score insert skipped:", e)
-
-    # 3. if they just finished the last station, mark winner timestamp for this team
-    finished = new_idx >= len(order)
-
-    if finished and not team.get("won_at"):
-        # Try to set won_at for THIS team if it's still null.
-        # Note: this does not globally prevent others from setting won_at later.
-        # For a strict "first team only" lock, move this to a SQL function or game table.
-        try:
-            supabase.table("teams").update({"won_at": "now()"}).eq("id", team["id"]).execute()
-        except Exception as e:
-            print("Setting won_at failed:", e)
-
-    # Message
-    if finished:
-        return True, "Nice find! (+10) You finished the route."
-
-    return True, "Nice find! (+10)"
+        return False, f"Scan error: {e}"
 
 
 # supabase realtime channel
@@ -324,6 +291,9 @@ def handle_scan_from_query():
     # Nothing to do unless all three are present and scan=1
     if not (team and station and str(scan) == "1"):
         return
+    
+    # sync UI to the team from the link
+    st.session_state["team_slug"] = team
 
     ok, msg = advance_if_expected(team, station)
     if ok:
@@ -343,6 +313,11 @@ def handle_scan_from_query():
 handle_scan_from_query()
 st.header("Game")
 
+lb = (supabase.rpc("get_leaderboard").execute().data) or []
+for row in lb:
+    st.sidebar.write(f"#{row['rank']}  {row['team_name']} — {row['points']} pts")
+
+# Sidebar leaderboard fresh every render
 def get_seed_and_aliases(station_id: str):
     info = RIDDLES.get(station_id)
     if not info:
@@ -366,8 +341,11 @@ col1, col2 = st.columns([2, 1])
 # ↓ --- CONSOLE ONLY USED FOR TESTING --- ↓
 # with col1:
 #     st.subheader("Team Console")
-team_slug = st.text_input("Team slug", value="red-1234")
-team_slug_str = team_slug.strip()
+
+# bind the input to session state so scan links can set it
+st.text_input("Team slug", key="team_slug")
+team_slug_str = st.session_state["team_slug"].strip()
+
 # guard against no team slug before rendering the chat
 if not team_slug_str:
     st.info("Enter a team slug to start your hunt.")
@@ -463,7 +441,6 @@ station_name = "Unknown"
 seed_riddle = ""
 aliases = []
 
-team_slug_str = team_slug.strip()
 if team_slug_str:
     _team, _next_station, _idx = get_next_station(team_slug_str)
     if _next_station:
