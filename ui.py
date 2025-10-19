@@ -582,8 +582,10 @@ if hasattr(st.session_state, "_show_thinking") and st.session_state._show_thinki
 if st.session_state.get("_clear_guardian_input"):
     st.session_state["guardian_input"] = ""
     st.session_state["_clear_guardian_input"] = False
+
 user_msg = st.text_input("Ask the guardian", key="guardian_input", disabled=st.session_state.guardian_busy)
-# Custom button styling for Send and Ask for a hint
+
+# Button styling can stay; it affects all st.button
 st.markdown('''
 <style>
 .stButton > button, .stButton > button:active, .stButton > button:focus, .stButton > button:hover {
@@ -610,11 +612,11 @@ st.markdown('''
 }
 </style>
 ''', unsafe_allow_html=True)
-col_send, col_hint = st.columns(2)
-send_clicked = col_send.button("Send", disabled=st.session_state.guardian_busy)
-hint_clicked = col_hint.button("Ask for a hint", disabled=st.session_state.guardian_busy)
 
-if send_clicked or hint_clicked:
+# Single SEND button (removed the hint button + columns)
+send_clicked = st.button("Send", disabled=st.session_state.guardian_busy)
+
+if send_clicked:
     if st.session_state.guardian_busy:
         st.stop()
     st.session_state.guardian_busy = True
@@ -627,8 +629,10 @@ if send_clicked or hint_clicked:
         st.info("You’ve finished the hunt. Great job.")
         st.session_state.guardian_busy = False
     else:
+        # Optional: allow typed hints (players can type 'hint' or '/hint')
         give_hint = False
-        if hint_clicked:
+        msg = (user_msg or "").strip()
+        if msg.lower() in {"hint", "/hint"}:
             used = st.session_state.hints_used.get(station_id, 0)
             if used >= MAX_HINTS_PER_STATION:
                 st.info("You’ve used your hint for this station.")
@@ -637,9 +641,11 @@ if send_clicked or hint_clicked:
             else:
                 st.session_state.hints_used[station_id] = used + 1
                 give_hint = True
+                msg = ""  # don’t echo '/hint' into the chat
 
-        msg = user_msg or ""
-        st.session_state.chat_history.append(("user", msg))
+        # Append the user message (if not a hint command)
+        if msg:
+            st.session_state.chat_history.append(("user", msg))
 
         # Save everything the LLM call needs
         st.session_state._show_thinking = {
@@ -698,22 +704,6 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
     st.session_state._awaiting_guardian = None
     st.rerun()
 
-if st.button("LLM direct test (no thread)"):
-    try:
-        t0 = time.time()
-        st.write("Calling LLM…")
-        resp = client.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "user", "content": "Say 'pong' in one word."}],
-            temperature=TEMPERATURE,
-            max_tokens=MAX_TOKENS_PER_REPLY,
-            timeout=3.0,  # hard 3s
-        )
-        dt = time.time()-t0
-        st.write(f"OK in {dt:.2f}s:", resp.choices[0].message.content)
-    except Exception as e:
-        st.write(f"[direct error] {repr(e)}")
-
 with col2:
     st.subheader("🏆 Leaderboard")
     try:
@@ -729,5 +719,5 @@ with col2:
         st.error(f"Could not load leaderboard. {e}")
 
     # manual refresh button
-    if st.button("↻ Refresh leaderboard"):
-        st.rerun()
+    # if st.button("↻ Refresh leaderboard"):
+    #     st.rerun()
