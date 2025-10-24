@@ -1,0 +1,11 @@
+step,station_id,station_name,url,filename
+1,6e681c03-1914-4945-bc1d-f3f6de81387e,Cafeteria,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=6e681c03-1914-4945-bc1d-f3f6de81387e&scan=1,01_Cafeteria_6e681c03.png
+2,04de5c45-006d-4f25-9b1c-f4dcab214768,Humanities Tower,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=04de5c45-006d-4f25-9b1c-f4dcab214768&scan=1,02_Humanities_Tower_04de5c45.png
+3,5682e30b-49f7-435c-bd16-fde7ee8c66a5,CS Quad,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=5682e30b-49f7-435c-bd16-fde7ee8c66a5&scan=1,03_CS_Quad_5682e30b.png
+4,a01b4a44-5c1f-45b6-9439-a64640f9838e,McCarthy Hall Back Area,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=a01b4a44-5c1f-45b6-9439-a64640f9838e&scan=1,04_McCarthy_Hall_Back_Area_a01b4a44.png
+5,342f4638-f4c1-4992-9253-f85cecdf2157,Student Health Center,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=342f4638-f4c1-4992-9253-f85cecdf2157&scan=1,05_Student_Health_Center_342f4638.png
+6,9fa91f85-8dae-4d27-977f-2bb77a6fc932,Nutwood Parking Structure,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=9fa91f85-8dae-4d27-977f-2bb77a6fc932&scan=1,06_Nutwood_Parking_Structure_9fa91f85.png
+7,46ba7881-0999-4736-ae10-bc20b35dbd1c,Student Rec Center,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=46ba7881-0999-4736-ae10-bc20b35dbd1c&scan=1,07_Student_Rec_Center_46ba7881.png
+8,e96d2104-0c34-45b6-88fc-3f075d55f349,Library,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=e96d2104-0c34-45b6-88fc-3f075d55f349&scan=1,08_Library_e96d2104.png
+9,98aa15a6-0246-4980-8e3c-11b99a47d858,Statue of David,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=98aa15a6-0246-4980-8e3c-11b99a47d858&scan=1,09_Statue_of_David_98aa15a6.png
+10,d228d7a8-1d4b-4194-a745-2996c88f3fbd,Fullerton Arboretum,https://base-determines-madrid-talks.trycloudflare.com/?team=orange-1234&station=d228d7a8-1d4b-4194-a745-2996c88f3fbd&scan=1,10_Fullerton_Arboretum_d228d7a8.png

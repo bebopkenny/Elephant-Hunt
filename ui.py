@@ -361,11 +361,19 @@ for row in lb:
     st.sidebar.write(f"#{row['rank']}  {row['team_name']} — {row['points']} pts")
 
 # Sidebar leaderboard fresh every render
-def get_seed_and_aliases(station_id: str):
-    info = RIDDLES.get(station_id)
+
+# normalize keys once
+RIDDLES_NORM = {str(k).lower(): v for (k, v) in RIDDLES.items()}
+
+DEFAULT_SEED = "A small friend waits nearby. Look for the spot that fits your team’s story."
+
+def get_seed_and_aliases(station_id):
+    key = str(station_id).lower()
+    info = RIDDLES_NORM.get(key)
     if not info:
-        return ("A small friend waits nearby. Look for the spot that fits your team’s story.", [])
+        return (DEFAULT_SEED, [])
     return (info["seed"], info.get("aliases", []))
+
 
 # RIDDLES = {
 #     "Library":   "Rows of friends with spines of ink; find the place where ideas link.",
@@ -707,16 +715,29 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
 with col2:
     st.subheader("🏆 Leaderboard")
     try:
-        rows = supabase.rpc("get_leaderboard").execute().data
+        rows = supabase.rpc("get_leaderboard").execute().data or []
         if rows:
-            medals = {1: '🥇', 2: '🥈', 3: '🥉'}
-            for r in rows:
-                medal = medals.get(r['rank'], '')
-                st.markdown(f"{medal} #{r['rank']}  <b>{r['team_name']}</b>: <b>{r['points']} pts</b>", unsafe_allow_html=True)
+            medals = {
+                1: "🥇",
+                2: "🥈",
+                3: "🥉",
+                4: "🏅",
+                5: "🏅",
+                6: "🥈",
+            }
+            for r in rows:  # shows all teams
+                rank = int(r["rank"])
+                medal = medals.get(rank, "")
+                st.markdown(
+                    f"{medal} #{rank} <b>{r['team_name']}</b>: <b>{r['points']} pts</b>",
+                    unsafe_allow_html=True,
+                )
         else:
             st.write("No scores yet.")
     except Exception as e:
         st.error(f"Could not load leaderboard. {e}")
+
+
 
     # manual refresh button
     # if st.button("↻ Refresh leaderboard"):

@@ -15,13 +15,13 @@ RIDDLES = {
         "aliases": ["Student Recreation Center", "Rec Center", "SRC", "Gym", "Rock Wall"],
     },
     # Humanities Tower
-    "ff9f5db7-c773-4886-ba3b-1f858e1d0ff9": {
+    "04de5c45-006d-4f25-9b1c-f4dcab214768": {
         "seed": "Seek the tower where stories and languages meet, then climb until the stairs run out.",
         "aliases": ["Humanities", "Humanities Building", "Humanities Tower", "H Building"],
     },
     # Nutwood Parking Structure 4th Floor
-    "5eccd0a7-95ed-417e-93d2-4c1e4c3c8ec3": {
-        "seed": "Steel and concrete keep the carriages stacked; nearly to the top, find the fourth pillar of your path.",
+    "9fa91f85-8dae-4d27-977f-2bb77a6fc932": {
+        "seed": "Steel and concrete keep the carriages stacked; nearly to the top, find the fourth Tallest pillar of your path.",
         "aliases": ["Nutwood Parking Structure", "Nutwood Structure", "Nutwood", "PS", "PS3"],
     },
     # McCarthy Hall astronomy display
@@ -35,17 +35,17 @@ RIDDLES = {
         "aliases": ["David", "Statue of David", "David Statue"],
     },
     # CS Quad
-    "32e9cf74-68e1-4ef7-8c3a-3aadcf401257": {
+    "5682e30b-49f7-435c-bd16-fde7ee8c66a5": {
         "seed": "Beside the halls of code, apprentices of logic gather before facing the galaxy of knowledge.",
         "aliases": ["CS Quad", "Computer Science", "CS Building", "CS"],
     },
     # Student Health Center
-    "7d1ba2f1-9b6a-4690-a88d-ecd385e609c2": {
+    "342f4638-f4c1-4992-9253-f85cecdf2157": {
         "seed": "When the match pauses for mending, seek the square where healers watch over pawns and knights alike.",
         "aliases": ["Student Health Center", "Health Center", "Wellness", "Clinic"],
     },
     # Arboretum
-    "add72462-92e7-4870-af58-940807e684ac": {
+    "d228d7a8-1d4b-4194-a745-2996c88f3fbd": {
         "seed": "Beyond the lecture halls, paths twist like a puzzle and colors re-align with every turn.",
         "aliases": ["Fullerton Arboretum", "Arboretum", "Botanical Garden"],
     },
