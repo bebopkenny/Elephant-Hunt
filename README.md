@@ -1,6 +1,6 @@
-# Tuffy Hunt
+# Elephant Hunt
 
-Tuffy Hunt is an interactive campus scavenger hunt game built for the ACM chapter at California State University, Fullerton.  
+Elephant Hunt is an interactive campus scavenger hunt game built for the ACM chapter at California State University, Fullerton.  
 Teams race to find QR-coded elephants placed around campus while guided by riddles from the Guardian chatbot.  
 
 ## Overview
