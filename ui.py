@@ -370,15 +370,15 @@ st.markdown("<hr>", unsafe_allow_html=True)
 col1, col2 = st.columns([2, 1])
 
 # bind the input to session state so scan links can set it
-st.text_input("Team slug", key="team_slug")
+st.text_input("Team Color", key="team_slug")
 team_slug_str = st.session_state["team_slug"].strip().lower()
 
 # guard against no team slug before rendering the chat
 if not team_slug_str:
     if "_pending_scan" in st.session_state:
-        st.warning("You scanned an elephant! Enter your team slug below to claim it.")
+        st.warning("You scanned an elephant! Enter your team color below to claim it.")
     else:
-        st.info("Enter a team slug to start your hunt.")
+        st.info("Enter your team color to start your hunt.")
     st.stop()
 
 # Process any pending scan now that we have a team slug
@@ -587,7 +587,7 @@ if send_clicked:
     st.session_state["_clear_guardian_input"] = True
 
     if not team_slug_str:
-        st.warning("Enter a team slug first.")
+        st.warning("Enter your team color first.")
         st.session_state.guardian_busy = False
     elif station_id is None:
         st.info("You’ve finished the hunt. Great job.")
@@ -636,6 +636,10 @@ if hasattr(st.session_state, "_show_thinking") and st.session_state._show_thinki
 if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaiting_guardian:
     params = st.session_state._awaiting_guardian
 
+    # Show thinking dots while waiting for LLM
+    thinking_html = '<div class="chat-row"><div class="chat-bubble chat-assistant"><span class="thinking-dot"></span><span class="thinking-dot"></span><span class="thinking-dot"></span></div></div>'
+    thinking_placeholder.markdown(thinking_html, unsafe_allow_html=True)
+
     # Use what we saved pre-click
     station_name = params["station_name"]
     user_text = params["msg"]
@@ -655,7 +659,7 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
 
     typing_placeholder = thinking_placeholder
     displayed = ""
-    # (Optional) smoother/ quicker typing animation
+    # smoother and quicker typing animation
     for i in range(0, len(reply), 4):  # print 4 chars at a time
         displayed = reply[: i + 4]
         typing_html = f'<div class="chat-row"><div class="chat-bubble chat-assistant">{escape(displayed)}</div></div>'
