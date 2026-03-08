@@ -1,0 +1,263 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 650" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="2" dy="3" stdDeviation="4" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef9f0"/>
+      <stop offset="100%" style="stop-color:#fff3e0"/>
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9800"/>
+      <stop offset="100%" style="stop-color:#FF7900"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#42A5F5"/>
+      <stop offset="100%" style="stop-color:#1e88e5"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#66BB6A"/>
+      <stop offset="100%" style="stop-color:#43A047"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#AB47BC"/>
+      <stop offset="100%" style="stop-color:#8E24AA"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF5350"/>
+      <stop offset="100%" style="stop-color:#E53935"/>
+    </linearGradient>
+    <linearGradient id="tealGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#26A69A"/>
+      <stop offset="100%" style="stop-color:#00897B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="650" fill="url(#bgGrad)" rx="16"/>
+
+  <!-- Title -->
+  <text x="550" y="40" text-anchor="middle" font-size="22" font-weight="700" fill="#333">
+    Elephant Hunt — Architecture
+  </text>
+
+  <!-- ==================== USERS ==================== -->
+  <!-- User group -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="250" width="120" height="80" rx="12" fill="url(#orangeGrad)"/>
+    <text x="90" y="282" text-anchor="middle" font-size="26">👥</text>
+    <text x="90" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="white">Players</text>
+    <text x="90" y="322" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.85)">6 Teams</text>
+  </g>
+
+  <!-- Arrow: Users → Phone -->
+  <line x1="150" y1="290" x2="185" y2="290" stroke="#FF7900" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+
+  <!-- Phone/QR Scanner -->
+  <g filter="url(#shadow)">
+    <rect x="188" y="250" width="110" height="80" rx="12" fill="url(#orangeGrad)"/>
+    <text x="243" y="282" text-anchor="middle" font-size="24">📱</text>
+    <text x="243" y="306" text-anchor="middle" font-size="12" font-weight="600" fill="white">QR Scanner</text>
+    <text x="243" y="319" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.85)">Phone Camera</text>
+  </g>
+
+  <!-- QR Code Box -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="380" width="100" height="70" rx="12" fill="white" stroke="#FF7900" stroke-width="2"/>
+    <text x="120" y="412" text-anchor="middle" font-size="24">📎</text>
+    <text x="120" y="436" text-anchor="middle" font-size="11" font-weight="600" fill="#333">QR Codes</text>
+    <text x="120" y="448" text-anchor="middle" font-size="9" fill="#888">10 Stations</text>
+  </g>
+
+  <!-- Arrow: QR → Phone -->
+  <path d="M 170 400 Q 200 370 220 335" stroke="#FF7900" stroke-width="2" fill="none" stroke-dasharray="5,3"/>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#FF7900"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e88e5"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#43A047"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8E24AA"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#E53935"/>
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#00897B"/>
+    </marker>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- ==================== STREAMLIT FRONTEND ==================== -->
+  <!-- Frontend box -->
+  <g filter="url(#shadow)">
+    <rect x="350" y="70" width="200" height="260" rx="14" fill="white" stroke="#FF7900" stroke-width="2.5"/>
+    <rect x="350" y="70" width="200" height="38" rx="14" fill="url(#orangeGrad)"/>
+    <rect x="350" y="94" width="200" height="14" fill="url(#orangeGrad)"/>
+    <text x="450" y="96" text-anchor="middle" font-size="14" font-weight="700" fill="white">Streamlit Frontend</text>
+  </g>
+
+  <!-- Frontend sub-items -->
+  <g font-size="11" fill="#444">
+    <rect x="370" y="120" width="160" height="32" rx="6" fill="#fff8f0" stroke="#FFB74D" stroke-width="1"/>
+    <text x="380" y="140" font-weight="600">🐘 Elephant Hunt UI</text>
+
+    <rect x="370" y="160" width="160" height="32" rx="6" fill="#fff8f0" stroke="#FFB74D" stroke-width="1"/>
+    <text x="380" y="180" font-weight="600">💬 Guardian Chat</text>
+
+    <rect x="370" y="200" width="160" height="32" rx="6" fill="#fff8f0" stroke="#FFB74D" stroke-width="1"/>
+    <text x="380" y="220" font-weight="600">🏆 Leaderboard</text>
+
+    <rect x="370" y="240" width="160" height="32" rx="6" fill="#fff8f0" stroke="#FFB74D" stroke-width="1"/>
+    <text x="380" y="260" font-weight="600">📷 QR Scan Handler</text>
+
+    <rect x="370" y="280" width="160" height="32" rx="6" fill="#fff8f0" stroke="#FFB74D" stroke-width="1"/>
+    <text x="380" y="300" font-weight="600">📍 Progress Tracker</text>
+  </g>
+
+  <!-- Streamlit Cloud label -->
+  <g filter="url(#shadow)">
+    <rect x="365" y="340" width="170" height="28" rx="8" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
+    <text x="450" y="359" text-anchor="middle" font-size="10" fill="#666">☁️ Streamlit Community Cloud</text>
+  </g>
+
+  <!-- Arrow: Phone → Frontend -->
+  <line x1="298" y1="280" x2="345" y2="260" stroke="#FF7900" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+
+  <!-- ==================== GROK LLM ==================== -->
+  <g filter="url(#shadow)">
+    <rect x="660" y="80" width="170" height="120" rx="14" fill="white" stroke="#E53935" stroke-width="2.5"/>
+    <rect x="660" y="80" width="170" height="38" rx="14" fill="url(#redGrad)"/>
+    <rect x="660" y="104" width="170" height="14" fill="url(#redGrad)"/>
+    <text x="745" y="106" text-anchor="middle" font-size="14" font-weight="700" fill="white">LLM Service</text>
+  </g>
+
+  <g font-size="11" fill="#444">
+    <rect x="675" y="128" width="140" height="28" rx="6" fill="#fff5f5" stroke="#EF9A9A" stroke-width="1"/>
+    <text x="685" y="146" font-weight="600">🤖 Guardian Chatbot</text>
+
+    <rect x="675" y="162" width="140" height="28" rx="6" fill="#fff5f5" stroke="#EF9A9A" stroke-width="1"/>
+    <text x="685" y="180" font-weight="600">🧩 Riddle Engine</text>
+  </g>
+
+  <!-- Arrow: Frontend → Grok -->
+  <line x1="550" y1="160" x2="655" y2="140" stroke="#E53935" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="595" y="138" text-anchor="middle" font-size="9" fill="#E53935" font-weight="600">OpenAI API</text>
+
+  <!-- ==================== SUPABASE ==================== -->
+  <g filter="url(#shadow)">
+    <rect x="660" y="260" width="170" height="210" rx="14" fill="white" stroke="#43A047" stroke-width="2.5"/>
+    <rect x="660" y="260" width="170" height="38" rx="14" fill="url(#greenGrad)"/>
+    <rect x="660" y="284" width="170" height="14" fill="url(#greenGrad)"/>
+    <text x="745" y="286" text-anchor="middle" font-size="14" font-weight="700" fill="white">Supabase</text>
+  </g>
+
+  <g font-size="11" fill="#444">
+    <rect x="675" y="308" width="140" height="26" rx="6" fill="#f1f8f1" stroke="#A5D6A7" stroke-width="1"/>
+    <text x="685" y="325" font-weight="600">📋 teams</text>
+
+    <rect x="675" y="338" width="140" height="26" rx="6" fill="#f1f8f1" stroke="#A5D6A7" stroke-width="1"/>
+    <text x="685" y="355" font-weight="600">📍 stations</text>
+
+    <rect x="675" y="368" width="140" height="26" rx="6" fill="#f1f8f1" stroke="#A5D6A7" stroke-width="1"/>
+    <text x="685" y="385" font-weight="600">🛤️ paths</text>
+
+    <rect x="675" y="398" width="140" height="26" rx="6" fill="#f1f8f1" stroke="#A5D6A7" stroke-width="1"/>
+    <text x="685" y="415" font-weight="600">⭐ score_events</text>
+
+    <rect x="675" y="428" width="140" height="26" rx="6" fill="#f1f8f1" stroke="#A5D6A7" stroke-width="1"/>
+    <text x="685" y="445" font-weight="600">⚙️ RPC Functions</text>
+  </g>
+
+  <!-- Arrow: Frontend → Supabase -->
+  <line x1="550" y1="290" x2="655" y2="340" stroke="#43A047" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="590" y="325" text-anchor="middle" font-size="9" fill="#43A047" font-weight="600">Supabase Client</text>
+
+  <!-- ==================== RPC FUNCTIONS ==================== -->
+  <g filter="url(#shadow)">
+    <rect x="900" y="290" width="170" height="100" rx="14" fill="white" stroke="#8E24AA" stroke-width="2.5"/>
+    <rect x="900" y="290" width="170" height="38" rx="14" fill="url(#purpleGrad)"/>
+    <rect x="900" y="314" width="170" height="14" fill="url(#purpleGrad)"/>
+    <text x="985" y="316" text-anchor="middle" font-size="14" font-weight="700" fill="white">Server Functions</text>
+  </g>
+
+  <g font-size="11" fill="#444">
+    <rect x="915" y="340" width="140" height="20" rx="4" fill="#f8f0ff" stroke="#CE93D8" stroke-width="1"/>
+    <text x="925" y="354" font-size="10" font-weight="600">process_scan()</text>
+
+    <rect x="915" y="364" width="140" height="20" rx="4" fill="#f8f0ff" stroke="#CE93D8" stroke-width="1"/>
+    <text x="925" y="378" font-size="10" font-weight="600">get_leaderboard()</text>
+  </g>
+
+  <!-- Arrow: Supabase → RPC -->
+  <line x1="830" y1="370" x2="895" y2="355" stroke="#8E24AA" stroke-width="2" marker-end="url(#arrowPurple)"/>
+
+  <!-- ==================== RIDDLES ==================== -->
+  <g filter="url(#shadow)">
+    <rect x="900" y="110" width="170" height="90" rx="14" fill="white" stroke="#00897B" stroke-width="2.5"/>
+    <rect x="900" y="110" width="170" height="38" rx="14" fill="url(#tealGrad)"/>
+    <rect x="900" y="134" width="170" height="14" fill="url(#tealGrad)"/>
+    <text x="985" y="136" text-anchor="middle" font-size="14" font-weight="700" fill="white">Game Config</text>
+  </g>
+
+  <g font-size="11" fill="#444">
+    <rect x="915" y="158" width="140" height="20" rx="4" fill="#f0faf8" stroke="#80CBC4" stroke-width="1"/>
+    <text x="925" y="172" font-size="10" font-weight="600">riddles.py (10 riddles)</text>
+
+    <rect x="915" y="182" width="140" height="12" rx="4" fill="transparent"/>
+    <text x="925" y="192" font-size="9" fill="#666">Seeds, aliases, UUIDs</text>
+  </g>
+
+  <!-- Arrow: Riddles → Frontend -->
+  <path d="M 900 185 Q 870 220 830 230 Q 700 240 555 210" stroke="#00897B" stroke-width="1.5" fill="none" marker-end="url(#arrowTeal)" stroke-dasharray="5,3"/>
+
+  <!-- ==================== GAME FLOW (bottom) ==================== -->
+  <rect x="30" y="500" width="1040" height="130" rx="14" fill="white" stroke="#ddd" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="550" y="528" text-anchor="middle" font-size="14" font-weight="700" fill="#333">Game Flow</text>
+
+  <!-- Flow steps -->
+  <g font-size="11">
+    <rect x="55" y="545" width="130" height="55" rx="10" fill="#FFF3E0" stroke="#FFB74D" stroke-width="1.5"/>
+    <text x="120" y="568" text-anchor="middle" font-weight="700" fill="#E65100">1. Get Riddle</text>
+    <text x="120" y="585" text-anchor="middle" font-size="9" fill="#888">Chat with Guardian</text>
+
+    <line x1="190" y1="572" x2="220" y2="572" stroke="#FF7900" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+    <rect x="225" y="545" width="130" height="55" rx="10" fill="#FFF3E0" stroke="#FFB74D" stroke-width="1.5"/>
+    <text x="290" y="568" text-anchor="middle" font-weight="700" fill="#E65100">2. Find Location</text>
+    <text x="290" y="585" text-anchor="middle" font-size="9" fill="#888">Solve the riddle</text>
+
+    <line x1="360" y1="572" x2="390" y2="572" stroke="#FF7900" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+    <rect x="395" y="545" width="130" height="55" rx="10" fill="#FFF3E0" stroke="#FFB74D" stroke-width="1.5"/>
+    <text x="460" y="568" text-anchor="middle" font-weight="700" fill="#E65100">3. Scan QR</text>
+    <text x="460" y="585" text-anchor="middle" font-size="9" fill="#888">Phone camera</text>
+
+    <line x1="530" y1="572" x2="560" y2="572" stroke="#FF7900" stroke-width="2" marker-end="url(#arrowOrange)"/>
+
+    <rect x="565" y="545" width="130" height="55" rx="10" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5"/>
+    <text x="630" y="568" text-anchor="middle" font-weight="700" fill="#2E7D32">4. Validate</text>
+    <text x="630" y="585" text-anchor="middle" font-size="9" fill="#888">process_scan()</text>
+
+    <line x1="700" y1="572" x2="730" y2="572" stroke="#43A047" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <rect x="735" y="545" width="130" height="55" rx="10" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5"/>
+    <text x="800" y="568" text-anchor="middle" font-weight="700" fill="#2E7D32">5. +10 Points</text>
+    <text x="800" y="585" text-anchor="middle" font-size="9" fill="#888">Next riddle loads</text>
+
+    <line x1="870" y1="572" x2="900" y2="572" stroke="#43A047" stroke-width="2" marker-end="url(#arrowGreen)"/>
+
+    <rect x="905" y="545" width="130" height="55" rx="10" fill="#FFF8E1" stroke="#FFD54F" stroke-width="1.5"/>
+    <text x="970" y="568" text-anchor="middle" font-weight="700" fill="#F57F17">6. Repeat!</text>
+    <text x="970" y="585" text-anchor="middle" font-size="9" fill="#888">Until station 10</text>
+  </g>
+</svg>

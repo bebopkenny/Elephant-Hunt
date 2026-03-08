@@ -1,3 +1,5 @@
+![Logo](./elephant_hunt_logo.png)
+
 # Elephant Hunt
 
 Elephant Hunt is an interactive campus scavenger hunt game built for the ACM chapter at California State University, Fullerton.  
@@ -29,7 +31,7 @@ The first team to reach the final elephant wins, but all teams can complete the 
   - Live leaderboard view
 
 ## Architecture
-![Architecture](https://media.discordapp.net/attachments/1299155448959598595/1415746119173935224/Web_Application_Flowchart_with_Grok_and_Supabase.png?ex=68c453d2&is=68c30252&hm=6baf2a388a9c417be18b65343257450a0beab2e50ddfd9bf9a5712d0141b54e3&=&format=webp&quality=lossless&width=1920&height=1280)
+![Architecture](./architecture.svg)
 - Frontend  
   Built in Streamlit. Handles chat UI, team input, QR scan handling, and leaderboard rendering.  
 
