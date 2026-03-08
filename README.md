@@ -14,14 +14,14 @@ The first team to reach the final elephant wins, but all teams can complete the 
 
 ## Features
 
-- Guardian chatbot powered by xAI Grok
+- Guardian chatbot powered by an LLM
   - Provides short riddles and limited hints
   - Refuses to reveal exact station names
 - Supabase backend for all game state
   - Teams, stations, paths, and scoring stored in database tables
   - Server-side validation of scans
 - QR-coded elephants
-  - Each QR encodes the team slug, station ID, and scan flag
+  - Each QR encodes the station ID and scan flag
   - Only the expected station advances the team
 - Real-time leaderboard
   - Displays ranks, scores, and standings during play
@@ -29,11 +29,12 @@ The first team to reach the final elephant wins, but all teams can complete the 
   - Branding and instructions page
   - Guardian chat interface with styled bubbles
   - Live leaderboard view
+  - Station progress indicator
 
 ## Architecture
 ![Architecture](./architecture.svg)
 - Frontend  
-  Built in Streamlit. Handles chat UI, team input, QR scan handling, and leaderboard rendering.  
+  Built in Streamlit. Handles chat UI, team input, QR scan handling, and leaderboard rendering. Deployed on Streamlit Community Cloud.
 
 - Backend  
   Supabase (Postgres + API) stores:
@@ -43,18 +44,18 @@ The first team to reach the final elephant wins, but all teams can complete the 
   - `score_events`: point logs for each correct scan  
 
 - Guardian LLM  
-  Grok is called via the OpenAI-compatible API. Each response is seeded by the station’s riddle and scrubbed for restricted aliases. Responses are short and consistent, with one stronger hint available per station.  
+  The LLM is called via an OpenAI-compatible API. Each response is seeded by the station's riddle and scrubbed for restricted aliases. Responses are short and consistent, with one stronger hint available per station.  
 
 - QR Generation  
-  QR codes are generated with Python. Each encodes a deep link in the form:  
-```https://<app-url>/?team=<slug>&station=<station_id>&scan=1```
+  QR codes are generated with Python. There are 10 team-neutral QR codes, one per station. Each encodes a deep link in the form:  
+```https://<app-url>/?station=<station_id>&scan=1```
 
 ## Technology Stack
 
 - Python 3.10+
 - Streamlit for the frontend
 - Supabase for database and RPC functions
-- OpenAI client for xAI Grok integration
+- OpenAI-compatible client for LLM integration
 - QRCode and Pillow for QR generation
 
 ## Installation
@@ -62,21 +63,21 @@ The first team to reach the final elephant wins, but all teams can complete the 
 Clone the repository and install requirements:
 
 ```bash
-git clone https://github.com/<your-org>/tuffy-hunt.git
-cd tuffy-hunt
+git clone https://github.com/<your-org>/elephant-hunt.git
+cd elephant-hunt
 pip install -r requirements.txt
 ```
 
 ## Configuration
 
-Secrets are stored in ```bash .streamlit/secrets.toml```:
+Secrets are stored in `.streamlit/secrets.toml`:
 ```toml
 SUPABASE_URL = "..."
 SUPABASE_ANON_KEY = "..."
 
-GROK_API_KEY = "..."
-GROK_API_URL = "https://api.x.ai/v1"
-GROK_MODEL   = "grok-4-0709"
+LLM_API_KEY = "..."
+LLM_API_URL = "..."
+LLM_MODEL   = "..."
 
 MAX_TOKENS_PER_REPLY = "160"
 TEMPERATURE = "0.25"
@@ -84,15 +85,14 @@ DAILY_REQUEST_LIMIT = "200"
 DAILY_COMPLETION_TOKEN_LIMIT = "50000"
 ```
 
-Provide a .streamlit/secrets.toml.example in the repository for setup instructions.
+Provide a `.streamlit/secrets.toml.example` in the repository for setup instructions.
 
 ## Running Locally
-```bash streamlit run ui.py```
-Open the app http://localhost:8501
-
-Use ```bash qrs.py``` to generate QR packs per team:
-
 ```bash
-python qrs.py --base-url "http://localhost:8501" --team red-1234
+streamlit run ui.py
 ```
+Open the app at http://localhost:8501
 
+## Deployment
+
+The app is deployed on Streamlit Community Cloud. Push changes to the main branch and the app will automatically redeploy. Secrets are configured in the Streamlit Cloud dashboard under Settings.
