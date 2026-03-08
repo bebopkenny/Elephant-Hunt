@@ -151,7 +151,7 @@
 
   <!-- Arrow: Frontend → Grok -->
   <line x1="550" y1="160" x2="655" y2="140" stroke="#E53935" stroke-width="2" marker-end="url(#arrowRed)"/>
-  <text x="595" y="138" text-anchor="middle" font-size="9" fill="#E53935" font-weight="600">OpenAI API</text>
+  <text x="595" y="138" text-anchor="middle" font-size="9" fill="#E53935" font-weight="600">LLM API</text>
 
   <!-- ==================== SUPABASE ==================== -->
   <g filter="url(#shadow)">
@@ -180,7 +180,7 @@
 
   <!-- Arrow: Frontend → Supabase -->
   <line x1="550" y1="290" x2="655" y2="340" stroke="#43A047" stroke-width="2" marker-end="url(#arrowGreen)"/>
-  <text x="590" y="325" text-anchor="middle" font-size="9" fill="#43A047" font-weight="600">Supabase Client</text>
+  <text x="610" y="300" text-anchor="middle" font-size="9" fill="#43A047" font-weight="600">Supabase Client</text>
 
   <!-- ==================== RPC FUNCTIONS ==================== -->
   <g filter="url(#shadow)">
