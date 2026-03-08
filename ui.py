@@ -38,6 +38,13 @@ st.markdown('''
     border-color: #FF7900 !important;
     box-shadow: 0 0 0 2px #FF790022 !important;
 }
+/* Ensure text input text is always readable */
+.stTextInput > div > div > input {
+    color: white !important;
+}
+.stTextInput > div > div > input::placeholder {
+    color: rgba(255,255,255,0.5) !important;
+}
 /* Hide 'Press Enter to apply' helper text for all Streamlit text inputs */
 div[data-testid="stTextInput"] span:has(svg) + div span,
 div[data-testid="stTextInput"] > div > div > span,
@@ -199,7 +206,7 @@ st.markdown(
 st.markdown(
     """
     <div style='width:100vw; position:fixed; left:50%; right:50%; bottom:0; margin-left:-50vw; margin-right:-50vw; background-color:#FF7900; height:48px; z-index:1000; display:flex; align-items:center; justify-content:center;'>
-      <span style='color:white; font-size:1rem; font-weight:500;'>© 2025 Kenny Garcia & Dianella Sy. All rights reserved.</span>
+      <span style='color:white; font-size:1rem; font-weight:500;'>© 2025-2026 Kenny Garcia & Dianella Sy. All rights reserved.</span>
     </div>
     """,
     unsafe_allow_html=True
@@ -356,13 +363,6 @@ def handle_scan_from_query():
 
 handle_scan_from_query()
 
-# Show any scan result message from the previous rerun
-if "_scan_msg" in st.session_state:
-    msg_type, msg_text = st.session_state.pop("_scan_msg")
-    if msg_type == "success":
-        st.success(msg_text)
-    else:
-        st.error(msg_text)
 st.header("Game")
 
 lb = (supabase.rpc("get_leaderboard").execute().data) or []
@@ -419,9 +419,9 @@ if "_pending_scan" in st.session_state:
     pending_station = st.session_state.pop("_pending_scan")
     ok, msg = advance_if_expected(team_slug_str, pending_station)
     if ok:
-        st.success(msg)
+        st.session_state["_scan_msg"] = ("success", msg)
     else:
-        st.error(msg)
+        st.session_state["_scan_msg"] = ("error", msg)
     st.rerun()
 
 
@@ -500,6 +500,28 @@ if st.session_state.get("last_team_slug") != team_slug_str:
 st.markdown("---")
 st.subheader("💬 Guardian Chat")
 
+# Show scan result banner (correct / wrong elephant)
+if "_scan_msg" in st.session_state:
+    msg_type, msg_text = st.session_state.pop("_scan_msg")
+    if msg_type == "success":
+        st.markdown(
+            """<div style='background:#4CAF50; color:white; padding:20px; border-radius:12px;
+            text-align:center; font-size:1.4rem; font-weight:700; margin-bottom:16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);'>
+            🎉 Nice find! +10 points! 🐘
+            </div>""",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            """<div style='background:#f44336; color:white; padding:20px; border-radius:12px;
+            text-align:center; font-size:1.4rem; font-weight:700; margin-bottom:16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);'>
+            ❌ Not your elephant. Keep looking!
+            </div>""",
+            unsafe_allow_html=True
+        )
+
 if "hints_used" not in st.session_state:
     st.session_state.hints_used = {}  # {station_id: int}
 if "chat_history" not in st.session_state:
@@ -528,6 +550,15 @@ if team_slug_str:
         s = get_station(station_id)  # fetch name/id from DB
         station_name = (s or {}).get("name", "Unknown")
         seed_riddle, aliases = get_seed_and_aliases(station_id)
+        # Show progress
+        path_data = get_path(_team["id"])
+        total_stations = len(path_data["station_order"]) if path_data else 10
+        st.markdown(
+            f"<div style='text-align:center; color:#FF7900; font-size:1rem; font-weight:600; margin:8px 0;'>"
+            f"📍 Station {_idx + 1} of {total_stations}"
+            f"</div>",
+            unsafe_allow_html=True
+        )
 
     elif _idx is not None:
         # Team exists but no next station finished route
