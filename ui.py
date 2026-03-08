@@ -312,15 +312,10 @@ def advance_if_expected(team_slug: str, scanned_station_id: str) -> Tuple[bool, 
 # Handle scan links in the game
 
 def handle_scan_from_query():
-    """
-    If the page has team / station / scan=1 in the query string,
-    try to advance and show a toast, then clear the params.
-    """
-    # Read query params with a backward compatible path
     try:
         params = st.query_params
     except Exception:
-        params = st.experimental_get_query_params()  # older versions return dict of lists
+        params = st.experimental_get_query_params()
 
     def first(v):
         if isinstance(v, list):
@@ -331,12 +326,18 @@ def handle_scan_from_query():
     station = first(params.get("station"))
     scan = first(params.get("scan"))
 
-    # Nothing to do unless all three are present and scan=1
-    if not (team and station and str(scan) == "1"):
+    # Need at least station + scan=1
+    if not (station and str(scan) == "1"):
         return
-    
-    # sync UI to the team from the link
-    st.session_state["team_slug"] = (team or "").strip().lower()
+
+    # Use URL team if provided, otherwise fall back to session
+    if team:
+        st.session_state["team_slug"] = (team or "").strip().lower()
+    team = st.session_state.get("team_slug", "").strip().lower()
+
+    if not team:
+        st.warning("Enter your team slug before scanning.")
+        return
 
     ok, msg = advance_if_expected(team, station)
     if ok:
@@ -344,13 +345,12 @@ def handle_scan_from_query():
     else:
         st.error(msg)
 
-    # Clear query params so refresh does not trigger the scan
     try:
         st.query_params.clear()
     except Exception:
         st.experimental_set_query_params()
 
-    st.rerun()   # restart the script without the old query string
+    st.rerun()
     return
 
 handle_scan_from_query()
