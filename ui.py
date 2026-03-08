@@ -692,9 +692,3 @@ with col2:
             st.write("No scores yet.")
     except Exception as e:
         st.error(f"Could not load leaderboard. {e}")
-
-
-
-    # manual refresh button
-    # if st.button("↻ Refresh leaderboard"):
-    #     st.rerun()
