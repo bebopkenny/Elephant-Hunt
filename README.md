@@ -32,7 +32,7 @@ The first team to reach the final elephant wins, but all teams can complete the 
   - Station progress indicator
 
 ## Architecture
-![Architecture](./architecture.svg)
+![Architecture](./architecture(2).svg)
 - Frontend  
   Built in Streamlit. Handles chat UI, team input, QR scan handling, and leaderboard rendering. Deployed on Streamlit Community Cloud.
 
