@@ -269,7 +269,7 @@ def get_next_station(team_slug: str):
 
 
 if "team_slug" not in st.session_state:
-    st.session_state["team_slug"] = "red-1234"  # default startup team
+    st.session_state["team_slug"] = ""
 
 def advance_if_expected(team_slug: str, scanned_station_id: str) -> Tuple[bool, str]:
     """
