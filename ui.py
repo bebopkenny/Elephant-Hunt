@@ -297,25 +297,6 @@ def advance_if_expected(team_slug: str, scanned_station_id: str) -> Tuple[bool, 
     except Exception as e:
         return False, f"Scan error: {e}"
 
-
-# supabase realtime channel
-# realtime is not working will work on this later
-# if "lb_channel" not in st.session_state:
-#     def _on_score_insert(payload):
-#         # bump a session var so Streamlit reruns on next tick
-#         st.session_state["_lb_bump"] = random.random()
-
-#     st.session_state["lb_channel"] = (
-#         supabase
-#         .channel("scores_live")
-#         .on("postgres_changes",
-#             event="INSERT",
-#             schema="public",
-#             table="score_events",
-#             callback=_on_score_insert)
-#         .subscribe()
-#     )
-
 # Handle scan links in the game
 
 def handle_scan_from_query():
@@ -383,24 +364,10 @@ def get_seed_and_aliases(station_id):
         return (DEFAULT_SEED, [])
     return (info["seed"], info.get("aliases", []))
 
-
-# RIDDLES = {
-#     "Library":   "Rows of friends with spines of ink; find the place where ideas link.",
-#     "Cafeteria": "Clatter and chatter at midday’s peak; hunger ends where trays you seek.",
-#     "Titan REC": "",
-#     "Statue of David": "",
-#     "TSU Game Floor": "",
-#     "CS building": "",
-# }
-
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # Left column: play area; Right column: leaderboard
 col1, col2 = st.columns([2, 1])
-
-# ↓ --- CONSOLE ONLY USED FOR TESTING --- ↓
-# with col1:
-#     st.subheader("Team Console")
 
 # bind the input to session state so scan links can set it
 st.text_input("Team slug", key="team_slug")
@@ -431,70 +398,6 @@ if st.session_state.get("last_team_slug") != team_slug_str:
     st.session_state.chat_history = []
     st.session_state.hints_used = {}
     st.session_state["last_station_id"] = None   # <- add this
-
-#     if team_slug.strip():
-#         team, next_station, idx = get_next_station(team_slug.strip())
-
-#         if not team:
-#             st.error("Team not found.")
-#         else:
-#             st.markdown(f"**Team:** {team['name']}  \n**Step:** {0 if idx is None else idx}")
-
-#             # guard: path or order may be missing
-#             path = get_path(team["id"])
-#             order = (path or {}).get("station_order") or []
-
-#             if not order or idx is None or idx >= len(order):
-#                 st.success("Finished! 🎉")
-#             else:
-#                 # safe to use idx now
-#                 expected_id = order[idx]
-
-#                 # In case next_station ever comes back None
-#                 station_name = next_station['name'] if next_station else 'Unknown'
-#                 st.info(f"**Riddle:** {RIDDLES.get(station_name, 'No riddle set yet.')}")
-
-#                 # pick a wrong id if available
-#                 wrong_id = next((sid for sid in order if sid != expected_id), None)
-
-#                 c1, c2 = st.columns(2)
-#                 with c1:
-#                     if st.button("📷 Scan (simulate correct)"):
-#                         ok, msg = advance_if_expected(team_slug, expected_id)
-#                         if ok:
-#                             st.success(msg)
-#                             st.rerun()
-#                         else:
-#                             st.error(msg)
-
-#                 with c2:
-#                     if st.button("📵 Scan (simulate wrong)"):
-#                         if wrong_id:
-#                             ok, msg = advance_if_expected(team_slug, wrong_id)
-#                             if ok:
-#                                 st.warning("Unexpectedly advanced with a wrong id.")
-#                                 st.rerun()
-#                             else:
-#                                 st.error(msg)
-#                         else:
-#                             st.warning("No alternate station to simulate a wrong scan.")
-
-#             # Reset to start (dev convenience)
-#             if st.button("↩️ Reset this team to start"):
-#                 t = get_team_by_slug(team_slug.strip())
-#                 if t:
-#                     supabase.table("paths").update({"current_index": 0}).eq("team_id", t["id"]).execute()
-#                     st.success("Reset to the first station.")
-#                     st.rerun()
-
-#             # Debug panel
-#             with st.expander("Debug: expected station id"):
-#                 if team and next_station is not None and idx is not None and idx < len(order):
-#                     st.write("Expected ID:", expected_id)
-#                     st.write("Station name:", next_station["name"])
-#     else:
-#         st.warning("Enter your team slug to begin.")
-# ↑ --- CONSOLE ONLY USED FOR TESTING --- ↑
 
     # LLM prototype for styling ↓
 st.markdown("---")
@@ -740,7 +643,7 @@ if hasattr(st.session_state, "_awaiting_guardian") and st.session_state._awaitin
     aliases = params.get("aliases", [])
     give_hint = params["give_hint"]
 
-    # ⬇️ NEW: hard 9s wall-clock timeout at the UI layer
+    # hard 9s wall clock timeout at the UI layer
     _ok, reply = _run_with_timeout(
         guardian_reply, 8.2,
         station_name=station_name,
