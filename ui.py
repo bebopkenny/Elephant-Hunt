@@ -326,34 +326,43 @@ def handle_scan_from_query():
     station = first(params.get("station"))
     scan = first(params.get("scan"))
 
-    # Need at least station + scan=1
+    # Nothing to do unless station + scan=1
     if not (station and str(scan) == "1"):
         return
 
-    # Use URL team if provided, otherwise fall back to session
+    # If team is in the URL, use it directly
     if team:
-        st.session_state["team_slug"] = (team or "").strip().lower()
-    team = st.session_state.get("team_slug", "").strip().lower()
+        st.session_state["team_slug"] = team.strip().lower()
 
-    if not team:
-        st.warning("Enter your team slug before scanning.")
-        return
-
-    ok, msg = advance_if_expected(team, station)
-    if ok:
-        st.success(msg)
-    else:
-        st.error(msg)
-
+    # Clear query params immediately so refresh doesn't re-trigger
     try:
         st.query_params.clear()
     except Exception:
         st.experimental_set_query_params()
 
-    st.rerun()
-    return
+    # If we have a team (from URL or session), process the scan now
+    current_team = st.session_state.get("team_slug", "").strip().lower()
+    if current_team:
+        ok, msg = advance_if_expected(current_team, station)
+        if ok:
+            st.session_state["_scan_msg"] = ("success", msg)
+        else:
+            st.session_state["_scan_msg"] = ("error", msg)
+        st.rerun()
+    else:
+        # No team yet — stash the station so we can process after slug entry
+        st.session_state["_pending_scan"] = station
+
 
 handle_scan_from_query()
+
+# Show any scan result message from the previous rerun
+if "_scan_msg" in st.session_state:
+    msg_type, msg_text = st.session_state.pop("_scan_msg")
+    if msg_type == "success":
+        st.success(msg_text)
+    else:
+        st.error(msg_text)
 st.header("Game")
 
 lb = (supabase.rpc("get_leaderboard").execute().data) or []
@@ -399,8 +408,21 @@ team_slug_str = st.session_state["team_slug"].strip().lower()
 
 # guard against no team slug before rendering the chat
 if not team_slug_str:
-    st.info("Enter a team slug to start your hunt.")
+    if "_pending_scan" in st.session_state:
+        st.warning("You scanned an elephant! Enter your team slug below to claim it.")
+    else:
+        st.info("Enter a team slug to start your hunt.")
     st.stop()
+
+# Process any pending scan now that we have a team slug
+if "_pending_scan" in st.session_state:
+    pending_station = st.session_state.pop("_pending_scan")
+    ok, msg = advance_if_expected(team_slug_str, pending_station)
+    if ok:
+        st.success(msg)
+    else:
+        st.error(msg)
+    st.rerun()
 
 
 # Reset chat + hint state if the team changes
