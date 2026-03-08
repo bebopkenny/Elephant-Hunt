@@ -23,7 +23,7 @@ def _run_with_timeout(fn, timeout_secs: float, *args, **kwargs):
 
 
 # 1. Page config
-st.set_page_config(page_title="Tuffy Hunt", layout="wide")
+st.set_page_config(page_title="Elephant Hunt", layout="wide")
 
 # Override Streamlit's primary color to orange and hide 'Press Enter to apply'
 st.markdown('''
@@ -151,7 +151,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown(
     """
     <h1 style='text-align:center; font-size:2.7rem; font-weight:800;'>
-      Welcome to <span style='color:#FF7900;'>Tuffy</span> <span style='color:#1e90ff;'>Hunt</span> 🐘
+      Welcome to <span style='color:#FF7900;'>Elephant</span> <span style='color:#1e90ff;'>Hunt</span> 🐘
     </h1>
     """,
     unsafe_allow_html=True
