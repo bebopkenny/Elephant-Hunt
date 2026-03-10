@@ -41,6 +41,7 @@ st.markdown('''
 /* Ensure text input text is always readable */
 .stTextInput > div > div > input {
     color: white !important;
+    background-color: #2b2b2b !important;
 }
 .stTextInput > div > div > input::placeholder {
     color: rgba(255,255,255,0.5) !important;
