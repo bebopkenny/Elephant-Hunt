@@ -684,7 +684,7 @@ with col2:
                 3: "🥉",
                 4: "🏅",
                 5: "🏅",
-                6: "🥈",
+                6: "🏅",
             }
             for r in rows:  # shows all teams
                 rank = int(r["rank"])
